@@ -154,9 +154,9 @@ def create_block(
 def _init_weights(
     module,
     n_layer,
-    initializer_range=0.02,  # Now only used for embedding layer.
+    initializer_range=0.02,  
     rescale_prenorm_residual=True,
-    n_residuals_per_layer=1,  # Change to 2 if we have MLP
+    n_residuals_per_layer=1, 
 ):
     if isinstance(module, nn.Linear):
         if module.bias is not None:
@@ -307,7 +307,7 @@ class VisionMamba(nn.Module):
     def forward_features(self, x, inference_params=None):
 
         x = self.patch_embed(x)
-        B, M, _ = x.shape   # B 批次    M patch个数
+        B, M, _ = x.shape  
 
         if self.if_abs_pos_embed:
             x = x + self.pos_embed
@@ -359,16 +359,16 @@ class VisionMamba(nn.Module):
 
 
         x = self.head(p)
-        z = self.head2(p) #(bs, 64, 66)
+        z = self.head2(p) 
         if self.final_pool_type == 'max':
             x = x.max(dim=1)[0]
 
         pitch = x.permute(0,2,1)
-        tone = z.permute(0,2,1) #(bs, 66, 64)
+        tone = z.permute(0,2,1) 
 
         repeats = [1] + [4] + [5] * 63 + [1]
 
-        z = torch.repeat_interleave(z, torch.tensor(repeats).cuda(), dim=-1).permute(0,2,1)   #(bs, 321, 64)
+        z = torch.repeat_interleave(z, torch.tensor(repeats).cuda(), dim=-1).permute(0,2,1) 
 
         pitch2 =  self.softmax(z)*pitch + pitch
         pitch = self.linear3(pitch2.permute(0,2,1)).permute(0,2,1)
